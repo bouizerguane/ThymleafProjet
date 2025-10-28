@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Formulaire Cours</title>
+</head>
+<body>
+<div th:fragment="content">
+    <!-- En-tête de page -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <!-- CORRECTION : Syntaxe Thymeleaf corrigée -->
+            <h1 class="h3 mb-1" th:text="${cours?.id != null} ? 'Modifier le cours' : 'Nouveau cours'"></h1>
+            <p class="text-muted mb-0" th:text="${cours?.id != null} ? 'Modifier les informations du cours' : 'Ajouter un nouveau cours'"></p>
+        </div>
+        <a th:href="@{/cours}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Retour
+        </a>
+    </div>
+
+    <!-- Carte du formulaire -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+            <form th:action="${cours?.id != null} ? @{/cours/update} : @{/cours/save}" method="post">
+                <!-- Champ caché pour l'ID -->
+                <input type="hidden" name="id" th:value="${cours?.id}">
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Intitulé du cours</label>
+                        <input type="text" class="form-control" name="intitule"
+                               th:value="${cours?.intitule}"
+                               placeholder="Ex: Programmation Java" required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Niveau</label>
+                        <input type="text" class="form-control" name="niveau"
+                               th:value="${cours?.niveau}"
+                               placeholder="Ex: Tronc commun, 1ere Année" required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Capacité</label>
+                        <input type="number" class="form-control" name="capacite"
+                               th:value="${cours?.capacite}"
+                               placeholder="Nombre maximum d'étudiants" min="1" required>
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="d-flex justify-content-end gap-3 pt-3">
+                            <a th:href="@{/cours}" class="btn btn-outline-secondary">
+                                Annuler
+                            </a>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-save me-2"></i>
+                                <span th:text="${cours?.id != null} ? 'Modifier' : 'Enregistrer'"></span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

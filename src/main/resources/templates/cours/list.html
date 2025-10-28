@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Cours</title>
+</head>
+<body>
+<div th:fragment="content">
+    <!-- En-tête de page -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-1">Gestion des Cours</h1>
+            <p class="text-muted mb-0" th:text="'Total: ' + ${#lists.size(coursList)} + ' cours(s)'">Total: 0 cours(s)</p>
+        </div>
+        <a th:href="@{/cours/new}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>Nouveau Cours
+        </a>
+    </div>
+
+    <!-- Filtres -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <h5 class="card-title mb-3">
+                <i class="fas fa-filter text-muted me-2"></i>Filtrer par niveau
+            </h5>
+            <form method="get" class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label">Niveau</label>
+                    <select name="niveau" class="form-select" onchange="this.form.submit()">
+                        <option value="">Tous les niveaux</option>
+                        <option th:each="niv : ${niveaux}"
+                                th:value="${niv}"
+                                th:text="${niv}"
+                                th:selected="${niv == niveauSelectionne}"></option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <a th:href="@{/cours}" class="btn btn-outline-secondary w-100">Réinitialiser</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Alert de filtre actif -->
+    <div th:if="${niveauSelectionne}" class="alert alert-info border-0 shadow-sm">
+        <i class="fas fa-info-circle me-2"></i>
+        Affichage des cours de niveau : <strong th:text="${niveauSelectionne}"></strong>
+        | <span th:text="${#lists.size(coursList)}"></span> cours trouvé(s)
+    </div>
+
+    <!-- Tableau des cours -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                    <tr>
+                        <th class="border-0">ID</th>
+                        <th class="border-0">Intitulé</th>
+                        <th class="border-0">Niveau</th>
+                        <th class="border-0">Capacité</th>
+                        <th class="border-0 text-end">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="cours : ${coursList}" class="fade-in-up">
+                        <td>
+                            <span class="badge bg-primary bg-opacity-10 text-primary">#<span th:text="${cours.id}"></span></span>
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="bg-success bg-opacity-10 rounded-circle p-2 me-3">
+                                    <i class="fas fa-book text-success"></i>
+                                </div>
+                                <div>
+                                    <h6 class="mb-0" th:text="${cours.intitule}"></h6>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge bg-info bg-opacity-10 text-info" th:text="${cours.niveau}"></span>
+                        </td>
+                        <td>
+                            <span class="fw-semibold" th:text="${cours.capacite}"></span>
+                            <small class="text-muted"> places</small>
+                        </td>
+                        <td>
+                            <div class="d-flex justify-content-end gap-2">
+                                <a th:href="@{/cours/edit/{id}(id=${cours.id})}"
+                                   class="btn btn-sm btn-outline-warning"
+                                   data-bs-toggle="tooltip" title="Modifier">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a th:href="@{/cours/delete/{id}(id=${cours.id})}"
+                                   class="btn btn-sm btn-outline-danger"
+                                   data-bs-toggle="tooltip" title="Supprimer"
+                                   onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce cours ?')">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(coursList)}">
+                        <td colspan="5" class="text-center py-5">
+                            <div class="text-muted">
+                                <i class="fas fa-book fs-1 mb-3"></i>
+                                <h5>Aucun cours trouvé</h5>
+                                <p class="mb-0" th:if="${niveauSelectionne}">Aucun cours trouvé pour le niveau sélectionné</p>
+                                <p class="mb-0" th:unless="${niveauSelectionne}">Commencez par ajouter votre premier cours</p>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

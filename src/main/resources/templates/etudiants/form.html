@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Formulaire Étudiant</title>
+</head>
+<body>
+<!-- IMPORTANT: Le fragment doit être auto-contenu -->
+<div th:fragment="content">
+    <!-- En-tête de page -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <!-- CORRECTION: Syntaxe Thymeleaf correcte -->
+            <h1 class="h3 mb-1">
+                <span th:if="${etudiant?.id != null}">Modifier l'étudiant</span>
+                <span th:if="${etudiant?.id == null}">Nouvel étudiant</span>
+            </h1>
+            <p class="text-muted mb-0">
+                <span th:if="${etudiant?.id != null}">Modifier les informations de l'étudiant</span>
+                <span th:if="${etudiant?.id == null}">Ajouter un nouvel étudiant</span>
+            </p>
+        </div>
+        <a th:href="@{/etudiants}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Retour
+        </a>
+    </div>
+
+    <!-- Carte du formulaire -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+            <form th:action="@{/etudiants/save}" method="post">
+                <!-- Champ caché pour l'ID -->
+                <input type="hidden" name="id" th:value="${etudiant?.id}">
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Nom complet</label>
+                        <input type="text" class="form-control" name="nom"
+                               th:value="${etudiant?.nom}"
+                               placeholder="Entrez le nom complet" required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">CNE</label>
+                        <input type="text" class="form-control" name="cne"
+                               th:value="${etudiant?.cne}"
+                               placeholder="Ex: E123456" required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Filière</label>
+                        <input type="text" class="form-control" name="filiere"
+                               th:value="${etudiant?.filiere}"
+                               placeholder="Ex: Filière1, Filière2" required>
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="d-flex justify-content-end gap-3 pt-3">
+                            <a th:href="@{/etudiants}" class="btn btn-outline-secondary">
+                                Annuler
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>
+                                <span th:if="${etudiant?.id != null}">Modifier</span>
+                                <span th:if="${etudiant?.id == null}">Enregistrer</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>
