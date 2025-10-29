@@ -101,7 +101,7 @@ public class StatsService {
         return stats;
     }
 
-    // NOUVELLE MÉTHODE : Récupère TOUTES les stats en une seule fois
+    // Récupère TOUTES les stats en une seule fois
     public Map<String, Object> getAllStats() {
         Map<String, Object> allStats = new HashMap<>();
 
