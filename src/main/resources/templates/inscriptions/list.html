@@ -61,6 +61,7 @@
                         <th class="border-0">Date</th>
                         <th class="border-0">Statut</th>
                         <th class="border-0">Note</th>
+                        <th class="border-0 text-end">Actions</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -93,27 +94,51 @@
                         <td>
                             <span th:if="${inscription.statut == 'Validé'}"
                                   class="badge bg-success">
-                                        <span th:text="${inscription.statut}"></span>
-                                    </span>
+                                <span th:text="${inscription.statut}"></span>
+                            </span>
                             <span th:if="${inscription.statut == 'En attente'}"
                                   class="badge bg-warning">
-                                        <span th:text="${inscription.statut}"></span>
-                                    </span>
+                                <span th:text="${inscription.statut}"></span>
+                            </span>
                             <span th:if="${inscription.statut != 'Validé' and inscription.statut != 'En attente'}"
                                   class="badge bg-secondary">
-                                        <span th:text="${inscription.statut}"></span>
-                                    </span>
+                                <span th:text="${inscription.statut}"></span>
+                            </span>
                         </td>
                         <td>
-                                    <span th:if="${inscription.noteFinal != null}"
-                                          th:classappend="${inscription.noteFinal >= 10} ? 'text-success fw-bold' : 'text-danger fw-bold'"
-                                          th:text="${inscription.noteFinal}">
-                                    </span>
+                            <span th:if="${inscription.noteFinal != null}"
+                                  th:classappend="${inscription.noteFinal >= 10} ? 'text-success fw-bold' : 'text-danger fw-bold'"
+                                  th:text="${inscription.noteFinal}">
+                            </span>
                             <span th:if="${inscription.noteFinal == null}" class="text-muted">Non noté</span>
+                        </td>
+                        <td class="text-end">
+                            <div class="btn-group" role="group">
+                                <!-- Bouton Modifier -->
+                                <a th:href="@{/inscriptions/edit/{etudiantId}/{coursId}/{dateInscription}(
+                                    etudiantId=${inscription.etudiant.id},
+                                    coursId=${inscription.cours.id},
+                                    dateInscription=${#temporals.format(inscription.getDateInscription(), 'yyyy-MM-dd')})}"
+                                   class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+
+                                <!-- Bouton Supprimer -->
+                                <form th:action="@{/inscriptions/delete/{etudiantId}/{coursId}/{dateInscription}(
+                                    etudiantId=${inscription.etudiant.id},
+                                    coursId=${inscription.cours.id},
+                                    dateInscription=${#temporals.format(inscription.getDateInscription(), 'yyyy-MM-dd')})}"
+                                      method="post" class="d-inline"
+                                      th:onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette inscription ?');">
+                                    <button type="submit" class="btn btn-outline-danger btn-sm">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                     <tr th:if="${#lists.isEmpty(inscriptions)}">
-                        <td colspan="5" class="text-center py-5">
+                        <td colspan="6" class="text-center py-5">
                             <div class="text-muted">
                                 <i class="fas fa-file-signature fs-1 mb-3"></i>
                                 <h5>Aucune inscription trouvée</h5>

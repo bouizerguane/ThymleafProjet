@@ -14,7 +14,7 @@ public class Etudiant implements Serializable {
     private String cne;
     private String filiere;
 
-    @OneToMany(mappedBy = "etudiant")
+    @OneToMany(mappedBy = "etudiant", cascade = CascadeType.ALL)
     private List<Inscription> inscriptions;
 
     public Etudiant() {

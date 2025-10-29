@@ -15,7 +15,7 @@ public class Cours implements Serializable {
     private String niveau;
     private int capacite;
 
-    @OneToMany(mappedBy = "cours")
+    @OneToMany(mappedBy = "cours", cascade = CascadeType.ALL)
     private List<Inscription> inscriptions;
 
 

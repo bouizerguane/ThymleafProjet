@@ -12,237 +12,113 @@
     <!-- Cartes de résumé -->
     <div class="row g-3 mb-4">
         <div class="col-md-3">
-            <div class="card border-0 bg-primary text-white shadow-sm">
+            <div class="card border-0 bg-primary text-white">
                 <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <h4 class="mb-0" th:text="${totalEtudiants}">0</h4>
-                            <p class="mb-0">Étudiants total</p>
-                        </div>
-                        <i class="fas fa-users fa-2x opacity-50"></i>
-                    </div>
+                    <h4 class="mb-0" id="totalEtudiants">0</h4>
+                    <p class="mb-0">Étudiants total</p>
                 </div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card border-0 bg-success text-white shadow-sm">
+            <div class="card border-0 bg-success text-white">
                 <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <h4 class="mb-0" th:text="${totalCours}">0</h4>
-                            <p class="mb-0">Cours total</p>
-                        </div>
-                        <i class="fas fa-book fa-2x opacity-50"></i>
-                    </div>
+                    <h4 class="mb-0" id="totalCours">0</h4>
+                    <p class="mb-0">Cours total</p>
                 </div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card border-0 bg-warning text-white shadow-sm">
+            <div class="card border-0 bg-warning text-white">
                 <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <h4 class="mb-0" th:text="${moyenneRemplissage}">0%</h4>
-                            <p class="mb-0">Remplissage moyen</p>
-                        </div>
-                        <i class="fas fa-chart-line fa-2x opacity-50"></i>
-                    </div>
+                    <h4 class="mb-0" id="moyenneRemplissage">0%</h4>
+                    <p class="mb-0">Remplissage moyen</p>
                 </div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card border-0 bg-info text-white shadow-sm">
+            <div class="card border-0 bg-info text-white">
                 <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <h4 class="mb-0" th:text="${moyenneSucces}">0%</h4>
-                            <p class="mb-0">Succès moyen</p>
-                        </div>
-                        <i class="fas fa-trophy fa-2x opacity-50"></i>
-                    </div>
+                    <h4 class="mb-0" id="moyenneSucces">0%</h4>
+                    <p class="mb-0">Succès moyen</p>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Graphiques -->
-    <div class="row g-4 mb-5">
-        <div class="col-lg-8">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-header bg-transparent border-0">
-                    <h5 class="card-title mb-0">
-                        <i class="fas fa-chart-bar me-2 text-primary"></i>
-                        Nombre d'étudiants inscrits par cours
-                    </h5>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Étudiants inscrits par cours</h5>
                 </div>
                 <div class="card-body">
-                    <canvas id="inscritsChart" height="300"></canvas>
+                    <canvas id="inscritsChart"></canvas>
                 </div>
             </div>
         </div>
-
-        <div class="col-lg-4">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-header bg-transparent border-0">
-                    <h5 class="card-title mb-0">
-                        <i class="fas fa-chart-pie me-2 text-success"></i>
-                        Taux de succès par cours
-                    </h5>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Taux de succès par cours</h5>
                 </div>
                 <div class="card-body">
-                    <canvas id="succesChart" height="300"></canvas>
+                    <canvas id="succesChart"></canvas>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Message si pas de données -->
-    <div th:if="${coursList.empty}" class="alert alert-info text-center">
-        <i class="fas fa-info-circle me-2"></i>
-        Aucune donnée disponible pour afficher les graphiques.
-    </div>
+    <script>
+        async function loadStats() {
+            try {
+                const response = await fetch('/stats/data');
+                const data = await response.json();
 
-    <script th:inline="javascript">
-        /*<![CDATA[*/
-        // Fonction pour initialiser les graphiques
-        function initCharts() {
-            console.log("=== DÉBUT CHARGEMENT STATISTIQUES ===");
+                // Cartes
+                const stats = data.statsGenerales || {};
+                document.getElementById('totalEtudiants').textContent = stats.totalEtudiants || 0;
+                document.getElementById('totalCours').textContent = stats.totalCours || 0;
+                document.getElementById('moyenneRemplissage').textContent = (data.moyenneRemplissage || 0) + '%';
+                document.getElementById('moyenneSucces').textContent = (data.moyenneSucces || 0) + '%';
 
-            // Données du contrôleur
-            const coursList = /*[[${coursList}]]*/ [];
-            const inscritsParCours = /*[[${inscritsParCours}]]*/ {};
-            const tauxSucces = /*[[${tauxSucces}]]*/ {};
+                // Données graphiques
+                const coursList = data.coursList;
+                const labels = coursList.map(c => c.intitule);
+                const inscritsData = coursList.map(c => data.inscritsParCours[c.id] || 0);
+                const succesData = coursList.map(c => data.tauxSucces[c.id] || 0);
 
-            console.log("Cours list:", coursList);
-            console.log("Inscrits par cours:", inscritsParCours);
-            console.log("Taux succès:", tauxSucces);
-
-            // Préparation des données
-            const coursLabels = coursList.map(cours => cours.intitule);
-            const inscritsData = coursList.map(cours => inscritsParCours[cours.id] || 0);
-            const succesData = coursList.map(cours => tauxSucces[cours.id] || 0);
-
-            console.log("Labels:", coursLabels);
-            console.log("Données inscrits:", inscritsData);
-            console.log("Données succès:", succesData);
-
-            // Vérifier si les éléments canvas existent
-            const inscritsCanvas = document.getElementById('inscritsChart');
-            const succesCanvas = document.getElementById('succesChart');
-
-            console.log("Canvas inscritsChart existe:", !!inscritsCanvas);
-            console.log("Canvas succesChart existe:", !!succesCanvas);
-
-            // Détruire les graphiques existants s'ils existent
-            if (window.inscritsChartInstance) {
-                window.inscritsChartInstance.destroy();
-            }
-            if (window.succesChartInstance) {
-                window.succesChartInstance.destroy();
-            }
-
-            // Graphique 1: Nombre d'inscrits (Barres)
-            if (inscritsCanvas && coursLabels.length > 0 && inscritsData.length > 0) {
-                console.log("Création du graphique inscrits...");
-                const ctx = inscritsCanvas.getContext('2d');
-                window.inscritsChartInstance = new Chart(ctx, {
+                // Graphique barres
+                new Chart(document.getElementById('inscritsChart'), {
                     type: 'bar',
                     data: {
-                        labels: coursLabels,
+                        labels: labels,
                         datasets: [{
                             label: 'Nombre d\'inscrits',
                             data: inscritsData,
-                            backgroundColor: 'rgba(54, 162, 235, 0.8)',
-                            borderColor: 'rgba(54, 162, 235, 1)',
-                            borderWidth: 2
+                            backgroundColor: 'blue'
                         }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                title: {
-                                    display: true,
-                                    text: 'Nombre d\'étudiants'
-                                },
-                                ticks: {
-                                    stepSize: 1
-                                }
-                            },
-                            x: {
-                                title: {
-                                    display: true,
-                                    text: 'Cours'
-                                }
-                            }
-                        }
                     }
                 });
-                console.log("Graphique inscrits créé avec succès");
-            } else {
-                console.log("Conditions non remplies pour graphique inscrits");
-            }
 
-            // Graphique 2: Taux de succès (Secteur)
-            if (succesCanvas && coursLabels.length > 0 && succesData.length > 0) {
-                console.log("Création du graphique succès...");
-                const ctx = succesCanvas.getContext('2d');
-                window.succesChartInstance = new Chart(ctx, {
+                // Graphique secteur
+                new Chart(document.getElementById('succesChart'), {
                     type: 'doughnut',
                     data: {
-                        labels: coursLabels,
+                        labels: labels,
                         datasets: [{
                             data: succesData,
-                            backgroundColor: [
-                                '#28a745', '#17a2b8', '#ffc107',
-                                '#dc3545', '#6f42c1', '#e83e8c',
-                                '#fd7e14', '#20c997', '#6610f2'
-                            ],
-                            borderWidth: 2
+                            backgroundColor: ['green', 'blue', 'orange', 'red']
                         }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                position: 'bottom',
-                                labels: {
-                                    padding: 20,
-                                    usePointStyle: true
-                                }
-                            },
-                            tooltip: {
-                                callbacks: {
-                                    label: function(context) {
-                                        return context.label + ': ' + context.parsed + '%';
-                                    }
-                                }
-                            }
-                        }
                     }
                 });
-                console.log("Graphique succès créé avec succès");
-            } else {
-                console.log("Conditions non remplies pour graphique succès");
+
+            } catch (error) {
+                console.error('Erreur:', error);
             }
         }
 
-        // Initialiser les graphiques quand le DOM est chargé
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log("DOM chargé - initialisation des graphiques");
-            initCharts();
-        });
-
-        // Si le DOM est déjà chargé (cas des pages en cache)
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initCharts);
-        } else {
-            initCharts();
-        }
-        /*]]>*/
+        document.addEventListener('DOMContentLoaded', loadStats);
     </script>
 </div>
 </body>

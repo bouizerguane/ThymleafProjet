@@ -35,16 +35,12 @@ public class InscriptionController {
         List<Inscription> inscriptions;
 
         if (statut != null && startDate != null && endDate != null) {
-            // Filtrage combiné
             inscriptions = inscriptionRepository.findByStatutAndDateInscriptionBetween(statut, startDate, endDate);
         } else if (statut != null) {
-            // Filtrage par statut seulement
             inscriptions = inscriptionRepository.findByStatut(statut);
         } else if (startDate != null && endDate != null) {
-            // Filtrage par période seulement
             inscriptions = inscriptionRepository.findByDateInscriptionBetween(startDate, endDate);
         } else {
-            // Toutes les inscriptions
             inscriptions = inscriptionRepository.findAll();
         }
 
@@ -68,6 +64,29 @@ public class InscriptionController {
         return "layout";
     }
 
+    @GetMapping("/edit/{etudiantId}/{coursId}/{dateInscription}")
+    public String editInscriptionForm(@PathVariable Long etudiantId,
+                                      @PathVariable Long coursId,
+                                      @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateInscription,
+                                      Model model) {
+
+        // Créer la clé composite pour retrouver l'inscription
+        InscriptionPK pk = new InscriptionPK();
+        pk.setEtudiantId(etudiantId);
+        pk.setCoursId(coursId);
+        pk.setDateInscription(dateInscription);
+
+        Inscription inscription = inscriptionRepository.findById(pk)
+                .orElseThrow(() -> new IllegalArgumentException("Inscription non trouvée"));
+
+        model.addAttribute("title", "Modifier Inscription");
+        model.addAttribute("inscription", inscription);
+        model.addAttribute("etudiants", etudiantRepository.findAll());
+        model.addAttribute("cours", coursRepository.findAll());
+        model.addAttribute("content", "inscriptions/form");
+        return "layout";
+    }
+
     @PostMapping("/save")
     public String saveInscription(@ModelAttribute("inscription") Inscription inscription,
                                   @RequestParam Long etudiantId,
@@ -78,17 +97,34 @@ public class InscriptionController {
         Cours cours = coursRepository.findById(coursId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid course Id"));
 
-        // Configuration de la clé composite
-        InscriptionPK pk = new InscriptionPK();
-        pk.setCoursId(coursId);
-        pk.setEtudiantId(etudiantId);
-        pk.setDateInscription(LocalDate.now());
+        // Si c'est une nouvelle inscription, créer la clé composite
+        if (inscription.getInscriptionPK() == null) {
+            InscriptionPK pk = new InscriptionPK();
+            pk.setCoursId(coursId);
+            pk.setEtudiantId(etudiantId);
+            pk.setDateInscription(LocalDate.now());
+            inscription.setInscriptionPK(pk);
+        }
 
-        inscription.setInscriptionPK(pk);
         inscription.setEtudiant(etudiant);
         inscription.setCours(cours);
 
         inscriptionRepository.save(inscription);
+        return "redirect:/inscriptions";
+    }
+
+    @PostMapping("/delete/{etudiantId}/{coursId}/{dateInscription}")
+    public String deleteInscription(@PathVariable Long etudiantId,
+                                    @PathVariable Long coursId,
+                                    @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateInscription) {
+
+        // Créer la clé composite pour supprimer l'inscription
+        InscriptionPK pk = new InscriptionPK();
+        pk.setEtudiantId(etudiantId);
+        pk.setCoursId(coursId);
+        pk.setDateInscription(dateInscription);
+
+        inscriptionRepository.deleteById(pk);
         return "redirect:/inscriptions";
     }
 }

@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Nouvelle Inscription</title>
+    <title th:text="${title}">Nouvelle Inscription</title>
 </head>
 <body>
 <div th:fragment="content">
     <!-- En-tête de page -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h1 class="h3 mb-1">Nouvelle Inscription</h1>
+            <h1 class="h3 mb-1" th:text="${title}">Nouvelle Inscription</h1>
             <p class="text-muted mb-0">Inscrire un étudiant à un cours</p>
         </div>
         <a th:href="@{/inscriptions}" class="btn btn-outline-secondary">
@@ -20,40 +20,59 @@
     <div class="card border-0 shadow-sm">
         <div class="card-body">
             <form th:action="@{/inscriptions/save}" method="post">
+                <!-- Champs cachés pour l'édition -->
+                <input type="hidden" name="etudiantId" th:value="${inscription.etudiant?.id}">
+                <input type="hidden" name="coursId" th:value="${inscription.cours?.id}">
+
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label class="form-label">Étudiant</label>
-                        <select name="etudiantId" class="form-select" required>
+                        <select name="etudiantId" class="form-select" required
+                                th:disabled="${inscription.etudiant != null}">
                             <option value="">Sélectionner un étudiant</option>
                             <option th:each="etudiant : ${etudiants}"
                                     th:value="${etudiant.id}"
-                                    th:text="${etudiant.nom + ' - ' + etudiant.cne}"></option>
+                                    th:text="${etudiant.nom + ' - ' + etudiant.cne}"
+                                    th:selected="${inscription.etudiant != null and inscription.etudiant.id == etudiant.id}">
+                            </option>
                         </select>
+                        <div th:if="${inscription.etudiant != null}" class="form-text text-muted">
+                            L'étudiant ne peut pas être modifié pour une inscription existante.
+                        </div>
                     </div>
 
                     <div class="col-md-6">
                         <label class="form-label">Cours</label>
-                        <select name="coursId" class="form-select" required>
+                        <select name="coursId" class="form-select" required
+                                th:disabled="${inscription.cours != null}">
                             <option value="">Sélectionner un cours</option>
                             <option th:each="cours : ${cours}"
                                     th:value="${cours.id}"
-                                    th:text="${cours.intitule + ' - ' + cours.niveau}"></option>
+                                    th:text="${cours.intitule + ' - ' + cours.niveau}"
+                                    th:selected="${inscription.cours != null and inscription.cours.id == cours.id}">
+                            </option>
                         </select>
+                        <div th:if="${inscription.cours != null}" class="form-text text-muted">
+                            Le cours ne peut pas être modifié pour une inscription existante.
+                        </div>
                     </div>
 
                     <div class="col-md-6">
                         <label class="form-label">Statut</label>
                         <select name="statut" class="form-select" required>
-                            <option value="Inscrit">Inscrit</option>
-                            <option value="Terminé">Terminé</option>
-                            <option value="Abandonné">Abandonné</option>
+                            <option value="Inscrit" th:selected="${inscription.statut == 'Inscrit'}">Inscrit</option>
+                            <option value="Terminé" th:selected="${inscription.statut == 'Terminé'}">Terminé</option>
+                            <option value="Abandonné" th:selected="${inscription.statut == 'Abandonné'}">Abandonné</option>
+                            <option value="Validé" th:selected="${inscription.statut == 'Validé'}">Validé</option>
+                            <option value="En attente" th:selected="${inscription.statut == 'En attente'}">En attente</option>
                         </select>
                     </div>
 
                     <div class="col-md-6">
                         <label class="form-label">Note Finale</label>
                         <input type="number" step="0.1" class="form-control" name="noteFinal"
-                               min="0" max="20" placeholder="Entre 0 et 20">
+                               min="0" max="20" placeholder="Entre 0 et 20"
+                               th:value="${inscription.noteFinal}">
                     </div>
                 </div>
 
@@ -64,7 +83,8 @@
                                 Annuler
                             </a>
                             <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save me-2"></i>Enregistrer l'inscription
+                                <i class="fas fa-save me-2"></i>
+                                <span th:text="${inscription.etudiant != null ? 'Modifier' : 'Enregistrer'}"></span> l'inscription
                             </button>
                         </div>
                     </div>

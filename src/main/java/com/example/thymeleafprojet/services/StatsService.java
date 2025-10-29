@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class StatsService {
@@ -44,8 +45,6 @@ public class StatsService {
 
         return taux;
     }
-
-
 
     // Taux de succès par cours (note >= 10)
     public Map<Long, Double> getTauxSuccesParCours() {
@@ -100,5 +99,60 @@ public class StatsService {
         }
 
         return stats;
+    }
+
+    // NOUVELLE MÉTHODE : Récupère TOUTES les stats en une seule fois
+    public Map<String, Object> getAllStats() {
+        Map<String, Object> allStats = new HashMap<>();
+
+        try {
+            Map<Long, Double> tauxRemplissage = getTauxRemplissageParCours();
+            Map<Long, Double> tauxSucces = getTauxSuccesParCours();
+            Map<String, Object> statsGenerales = getStatsGenerales();
+
+            // Calculer les moyennes (logique métier dans le service)
+            double tauxRemplissageMoyen = tauxRemplissage.values().stream()
+                    .mapToDouble(Double::doubleValue)
+                    .average()
+                    .orElse(0);
+
+            double tauxSuccesMoyen = tauxSucces.values().stream()
+                    .mapToDouble(Double::doubleValue)
+                    .average()
+                    .orElse(0);
+
+            // Préparer la liste des cours simplifiée
+            List<Map<String, Object>> coursList = coursRepository.findAll().stream()
+                    .map(cours -> {
+                        Map<String, Object> coursMap = new HashMap<>();
+                        coursMap.put("id", cours.getId());
+                        coursMap.put("intitule", cours.getIntitule());
+                        return coursMap;
+                    })
+                    .collect(Collectors.toList());
+
+            // Calculer le nombre d'inscrits par cours
+            Map<Long, Integer> inscritsParCours = new HashMap<>();
+            coursRepository.findAll().forEach(cours -> {
+                int nombreInscriptions = inscriptionRepository.findByCoursId(cours.getId()).size();
+                inscritsParCours.put(cours.getId(), nombreInscriptions);
+            });
+
+            // Assembler toutes les données
+            allStats.put("success", true);
+            allStats.put("coursList", coursList);
+            allStats.put("tauxRemplissage", tauxRemplissage);
+            allStats.put("tauxSucces", tauxSucces);
+            allStats.put("inscritsParCours", inscritsParCours);
+            allStats.put("statsGenerales", statsGenerales);
+            allStats.put("moyenneRemplissage", Math.round(tauxRemplissageMoyen * 10.0) / 10.0);
+            allStats.put("moyenneSucces", Math.round(tauxSuccesMoyen * 10.0) / 10.0);
+
+        } catch (Exception e) {
+            allStats.put("success", false);
+            allStats.put("error", e.getMessage());
+        }
+
+        return allStats;
     }
 }
