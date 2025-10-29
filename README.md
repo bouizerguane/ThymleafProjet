@@ -218,7 +218,7 @@ Pour exécuter l’application “InscriptionCours”, il est nécessaire d’av
 
 6- Démonstration vidéo
 
-
+https://drive.google.com/file/d/1jkcWR0wpOyDA6QpzxKbAr826BUmO4u-s/view?usp=sharing
 
 7- Auteur / Encadrement
  
