@@ -149,9 +149,6 @@ Java JDK 17 ou supérieur
 Maven 3.x  
 MySQL 
 
-<<<<<<< HEAD
-https://drive.google.com/file/d/1jkcWR0wpOyDA6QpzxKbAr826BUmO4u-s/view?usp=sharing
-=======
 ### 5.2 Installation et exécution
 Cloner le dépôt :
 ```bash
@@ -163,8 +160,6 @@ Configurer la base de données :
 ```sql
 CREATE DATABASE thymeleafprojet;
 ```
->>>>>>> 7bbcfaf (Modification du code et readme)
-
 Vérifier la configuration :
 - Modifier `application.properties` si nécessaire
 - Adapter les identifiants de connexion MySQL
@@ -180,7 +175,10 @@ Application : http://localhost:8080
 Tableau de bord : Accessible depuis la page d'accueil
 
 ## Démonstration
-Lien vers la vidéo de démonstration à ajouter
+
+
+https://github.com/user-attachments/assets/53cebf0b-4d09-4309-8025-254b8be6d490
+
 
 La démonstration inclut :
 - Navigation dans les pages
